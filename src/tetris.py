@@ -29,7 +29,7 @@ def main_game_loop():
     test_tetromino = LINE
     tetris_playground_top_left = (TETRIS_PLAYGROUND_DRAW_START_POINT[0] * SCREEN_WIDTH,
                                   TETRIS_PLAYGROUND_DRAW_START_POINT[1] * SCREEN_HEIGHT)
-    print(tetris_playground_top_left)
+    #print(tetris_playground_top_left)
     test_start_rect = Rect(tetris_playground_top_left[0], tetris_playground_top_left[1], TETRONIMO_RECT_SIZE, TETRONIMO_RECT_SIZE)
     start_tetronimo_drawing = (tetris_playground_top_left[0], tetris_playground_top_left[1])
     #test_start_rect = Rect((tetris_playground_top_left[0],
@@ -76,11 +76,14 @@ def main_game_loop():
         screen.fill(BLACK)
 
         # Draw tetromino
-        for rect in test_tetromino:
-            pass
-            # print(rect)
+        for rect_pos in test_tetromino:
+            rect_pos_draw = (rect_pos[0] * TETRONIMO_RECT_SIZE + SCREEN_WIDTH * TETRIS_PLAYGROUND_DRAW_START_POINT[0],
+                             rect_pos[1] * TETRONIMO_RECT_SIZE + SCREEN_HEIGHT * TETRIS_PLAYGROUND_DRAW_START_POINT[1])
+            pygame.draw.rect(screen,
+                             BLUE,
+                             Rect(rect_pos_draw[0], rect_pos_draw[1], TETRONIMO_RECT_SIZE, TETRONIMO_RECT_SIZE))
         # I think I can keep stuff here floats
-        pygame.draw.rect(screen, RED, test_start_rect)
+        # pygame.draw.rect(screen, RED, test_start_rect)
 
         # Draw playground
 
