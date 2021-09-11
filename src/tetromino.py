@@ -3,6 +3,7 @@
 # X -> left to right coordinate
 # Y -> top to bottom coordinate
 from enum import Enum
+from tetris_const import TETRIS_PLAYGROUND_SIZE_X
 
 
 class Direction(Enum):
@@ -17,14 +18,15 @@ class Rotation(Enum):
     DOWN = 2
     LEFT = 3
 
+START_X = int(TETRIS_PLAYGROUND_SIZE_X / 2) - 2
 
-LINE    = [[0,  0], [1,  0], [2,  0], [3,  0]] #, Rotation]
-SQUARE  = [[0,  0], [0,  1], [1,  0], [1,  1]] #, Rotation]
-L_SHAPE = [[0,  0], [0,  1], [0,  2], [1,  2]] #, Rotation]
-J_SHAPE = [[0,  0], [0,  1], [0,  2], [-1, 2]] #, Rotation]
-T_SHAPE = [[0,  0], [1,  0], [2,  0], [1,  1]] #, Rotation]
-SKEW    = [[1,  0], [2,  0], [0,  1], [1,  1]] #, Rotation]
-ZKEW    = [[0,  0], [1,  0], [1,  1], [1,  2]] #, Rotation]
+LINE    = [[START_X + 0, 0], [START_X + 1, 0], [START_X + 2, 0], [START_X + 3, 0]] #, Rotation]
+SQUARE  = [[START_X + 0, 0], [START_X + 0, 1], [START_X + 1, 0], [START_X + 1, 1]] #, Rotation]
+L_SHAPE = [[START_X + 0, 0], [START_X + 0, 1], [START_X + 0, 2], [START_X + 1, 2]] #, Rotation]
+J_SHAPE = [[START_X + 0, 0], [START_X + 0, 1], [START_X + 0, 2], [START_X - 1, 2]] #, Rotation]
+T_SHAPE = [[START_X + 0, 0], [START_X + 1, 0], [START_X + 2, 0], [START_X + 1, 1]] #, Rotation]
+SKEW    = [[START_X + 1, 0], [START_X + 2, 0], [START_X + 0, 1], [START_X + 1, 1]] #, Rotation]
+ZKEW    = [[START_X + 0, 0], [START_X + 1, 0], [START_X + 1, 1], [START_X + 1, 2]] #, Rotation]
 
 def rotate(tetromino, rot_center):
     # Assuming clockwise rotation
