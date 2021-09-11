@@ -1,9 +1,10 @@
 import pygame
 
 from pygame import Rect
+
 from consts import SCREEN_WIDTH, SCREEN_HEIGHT
 from colors import WHITE, RED, GREEN, BLUE, BLACK
-from tetromino import LINE, SQUARE, L_SHAPE, J_SHAPE, T_SHAPE, SKEW, ZKEW
+from tetromino import LINE, SQUARE, L_SHAPE, J_SHAPE, T_SHAPE, SKEW, ZKEW, move_rotate, Direction
 from tetris_const import TETRONIMO_RECT_SIZE, TETRIS_PLAYGROUND_SIZE_X, TETRIS_PLAYGROUND_SIZE_Y, TETRIS_PLAYGROUND_DRAW_START_POINT
 from ui import Button
 
@@ -52,20 +53,16 @@ def main_game_loop():
 
                 if event.key == K_w:
                     print("Rotating")
-                    # print("Rect is moving!")
-                    # rect = rect.move(0, -10)
+                    move_rotate(test_tetromino, (0, 0), Direction.UP)
                 if event.key == K_s:
                     print("Moving down")
-                    # print("Rect is moving!")
-                    # rect = rect.move(0, 10)
+                    move_rotate(test_tetromino, (0, 0), Direction.DOWN)
                 if event.key == K_a:
                     print("Moving left")
-                    # print("Rect is moving!")
-                    # rect = rect.move(-10, 0)
+                    move_rotate(test_tetromino, (0, 0), Direction.LEFT)
                 if event.key == K_d:
                     print("Moving right")
-                    # print("Rect is moving!")
-                    # rect = rect.move(10, 0)
+                    move_rotate(test_tetromino, (0, 0), Direction.RIGHT)
 
                 elif event.type == QUIT:
                     GAME_RUNNING = False
@@ -82,6 +79,7 @@ def main_game_loop():
             pygame.draw.rect(screen,
                              BLUE,
                              Rect(rect_pos_draw[0], rect_pos_draw[1], TETRONIMO_RECT_SIZE, TETRONIMO_RECT_SIZE))
+            # Use polygon to draw corners of rects
         # I think I can keep stuff here floats
         # pygame.draw.rect(screen, RED, test_start_rect)
 
