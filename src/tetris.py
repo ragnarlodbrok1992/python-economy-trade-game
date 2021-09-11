@@ -4,7 +4,7 @@ from pygame import Rect
 
 from consts import SCREEN_WIDTH, SCREEN_HEIGHT
 from colors import WHITE, RED, GREEN, BLUE, BLACK, YELLOW
-from tetromino import LINE, SQUARE, L_SHAPE, J_SHAPE, T_SHAPE, SKEW, ZKEW, move_rotate, Direction
+from tetromino import LINE, SQUARE, L_SHAPE, J_SHAPE, T_SHAPE, SKEW, ZKEW, move_rotate, Direction, Rotation
 from tetris_const import TETRONIMO_RECT_SIZE, TETRIS_PLAYGROUND_SIZE_X, TETRIS_PLAYGROUND_SIZE_Y, TETRIS_PLAYGROUND_DRAW_START_POINT
 from ui import Button
 
@@ -89,6 +89,7 @@ def main_game_loop():
     tetris_playground_top_left = (TETRIS_PLAYGROUND_DRAW_START_POINT[0] * SCREEN_WIDTH,
                                   TETRIS_PLAYGROUND_DRAW_START_POINT[1] * SCREEN_HEIGHT)
     test_start_rect = Rect(tetris_playground_top_left[0], tetris_playground_top_left[1], TETRONIMO_RECT_SIZE, TETRONIMO_RECT_SIZE)
+    test_tetromino_rotation = Rotation.RIGHT
 
     # Game border values
     top_left = [TETRIS_PLAYGROUND_DRAW_START_POINT[0] * SCREEN_WIDTH,

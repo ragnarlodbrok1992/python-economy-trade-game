@@ -28,10 +28,16 @@ T_SHAPE = [[START_X + 0, 0], [START_X + 1, 0], [START_X + 2, 0], [START_X + 1, 1
 SKEW    = [[START_X + 1, 0], [START_X + 2, 0], [START_X + 0, 1], [START_X + 1, 1]] #, Rotation]
 ZKEW    = [[START_X + 0, 0], [START_X + 1, 0], [START_X + 1, 1], [START_X + 1, 2]] #, Rotation]
 
-def rotate(tetromino, rot_center):
+def rotate(tetromino, rotation):
     # Assuming clockwise rotation
-    
-    pass
+    if rotation == Rotation.UP:
+        pass
+    elif rotation == Rotation.RIGHT:
+        pass
+    elif rotation == Rotation.DOWN:
+        pass
+    elif rotation == Rotation.LEFT:
+        pass
 
 
 def move_rotate(tetromino, rot_center, direction):
