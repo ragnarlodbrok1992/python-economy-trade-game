@@ -2,6 +2,7 @@ import pygame
 
 from pygame import Rect
 
+from enum import Enum
 from consts import SCREEN_WIDTH, SCREEN_HEIGHT
 from colors import WHITE, RED, GREEN, BLUE, BLACK, YELLOW
 from tetromino import LINE, SQUARE, L_SHAPE, J_SHAPE, T_SHAPE, SKEW, ZKEW, move_rotate, Direction, Rotation
@@ -80,11 +81,20 @@ def draw_tetromino(screen, tetromino):
 
         pygame.draw.lines(screen, GREEN, True, lines, width=1)
 
+class Difficulty(Enum):
+    SUPER_EASY = 300
+    EASY = 240
+    MEDIUM = 180
+    SOMEWHAT_HARD = 120
+    HARD = 60
+    UBER_HARD = 30
+
 def main_game_loop():
     # Initialize the pygame
     pygame.init()
 
     # Init some variables
+    # TODO make sure if rotation is correct (prepare right rotated tetrominos at start)
     test_tetromino = LINE
     tetris_playground_top_left = (TETRIS_PLAYGROUND_DRAW_START_POINT[0] * SCREEN_WIDTH,
                                   TETRIS_PLAYGROUND_DRAW_START_POINT[1] * SCREEN_HEIGHT)
@@ -116,6 +126,8 @@ def main_game_loop():
     GAME_RUNNING = True
     GAME_CLOCK = pygame.time.Clock()
     FPS_LIMIT = 60
+
+    current_difficulty = Difficulty.HARD
 
     frame_counter = 0
 
@@ -150,6 +162,15 @@ def main_game_loop():
                 elif event.type == QUIT:
                     GAME_RUNNING = False
 
+        # Moving tetromino on it's own
+        if frame_counter % current_difficulty.value == 0:
+            print("Moving tetromino down!")
+            print("Difficulty is " + str(current_difficulty))
+            if movable[1]:
+                move_rotate(test_tetromino, (0, 0), Direction.DOWN)
+
+            # TODO apply changing difficulty, right now set to HARD
+
         # Frame drawing
         # Erase the screen
         screen.fill(BLACK)
@@ -169,10 +190,12 @@ def main_game_loop():
         valid_coords_label = debug_font.render("Valid coords: " + str(valid_coords), 1, WHITE)
         movable_label = debug_font.render("Is movable: " + str(movable), 1, WHITE)
         game_clock_label = debug_font.render("Game clock FPS: " + str(GAME_CLOCK.get_fps()), 1, WHITE)
+        difficulty_label = debug_font.render("Difficulty: " + str(current_difficulty), 1, WHITE)
         screen.blit(frame_counter_label, (5, 5 + debug_strings_spacing * 0))
         screen.blit(valid_coords_label, (5, 5 + debug_strings_spacing * 1))
         screen.blit(movable_label, (5, 5 + debug_strings_spacing * 2))
         screen.blit(game_clock_label, (5, 5 + debug_strings_spacing * 3))
+        screen.blit(difficulty_label, (5, 5 + debug_strings_spacing * 4))
 
         # Update the screen
         # TODO: lets try to run it with opengl
