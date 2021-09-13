@@ -74,7 +74,10 @@ def stuck_tetromino_and_prepare_new(playground, tetromino):
         print("DEBUG! rect_0: {}".format(rect[0]))
         print("DEBUG! rect_0: {}".format(rect[1]))
         playground[rect[0]][rect[1]] = 1
+        # FIXME Lots of bugs - variables from tetrominos are static
+        # FIXME Setting up playground into ones set's them in not a good order
     return SQUARE  # test return, here we should get tetromino from tetrominos queue
+
 
 def draw_tetromino(screen, tetromino):
     for rect_pos in tetromino:
@@ -98,6 +101,8 @@ def draw_debug_playground(screen, playground):
     # TODO fix this function
     for idy, row in enumerate(playground):
         for idx, field in enumerate(row):
+            # print("DEBUG!")
+            # print("Drawing idx {} idy {} - field {}".format(idx, idy, field))
             rect_pos_draw = (idx * TETRONIMO_RECT_SIZE + SCREEN_WIDTH * TETRIS_PLAYGROUND_DRAW_START_POINT[0],
                              idy * TETRONIMO_RECT_SIZE + SCREEN_HEIGHT * TETRIS_PLAYGROUND_DRAW_START_POINT[1])
             lines_line_1 = []
@@ -208,6 +213,7 @@ def main_game_loop():
             if movable[1]:
                 move_rotate(test_tetromino, (0, 0), Direction.DOWN)
             if is_tetromino_almost_stuck:
+                print("Stucking tetromino!")
                 test_tetromino = stuck_tetromino_and_prepare_new(playground, test_tetromino)
 
             # TODO apply changing difficulty, right now set to HARD
