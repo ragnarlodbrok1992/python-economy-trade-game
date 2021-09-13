@@ -44,7 +44,7 @@ def check_valid_coords(tetromino):
             return False
     return True
 
-def check_where_can_move(tetromino):
+def check_where_can_move(playground, tetromino):
     # 0 - can move left
     # 1 - can move down
     # 2 - can move right
@@ -60,8 +60,21 @@ def check_where_can_move(tetromino):
             movable[1] = False
     return movable
 
-def is_tetronimo_stuck(playground, tetronimo):
-    pass
+def is_tetromino_going_to_be_stuck(playground, tetromino):
+    for rect in tetromino:
+        rect_check = (rect[0], rect[1] + 1)
+        if rect_check[1] > 20 - 1:
+            return True
+        elif playground[rect_check[0]][rect_check[1]] == 1:
+            return True
+    return False
+
+def stuck_tetromino_and_prepare_new(playground, tetromino):
+    for rect in tetromino:
+        print("DEBUG! rect_0: {}".format(rect[0]))
+        print("DEBUG! rect_0: {}".format(rect[1]))
+        playground[rect[0]][rect[1]] = 1
+    return SQUARE  # test return, here we should get tetromino from tetrominos queue
 
 def draw_tetromino(screen, tetromino):
     for rect_pos in tetromino:
@@ -80,6 +93,28 @@ def draw_tetromino(screen, tetromino):
                       rect_pos_draw[1]))
 
         pygame.draw.lines(screen, GREEN, True, lines, width=1)
+
+def draw_debug_playground(screen, playground):
+    # TODO fix this function
+    for idy, row in enumerate(playground):
+        for idx, field in enumerate(row):
+            rect_pos_draw = (idx * TETRONIMO_RECT_SIZE + SCREEN_WIDTH * TETRIS_PLAYGROUND_DRAW_START_POINT[0],
+                             idy * TETRONIMO_RECT_SIZE + SCREEN_HEIGHT * TETRIS_PLAYGROUND_DRAW_START_POINT[1])
+            lines_line_1 = []
+            lines_line_2 = []
+            lines_line_1.append(rect_pos_draw)
+            lines_line_2.append((rect_pos_draw[0],
+                          rect_pos_draw[1] + TETRONIMO_RECT_SIZE))
+            lines_line_1.append((rect_pos_draw[0] + TETRONIMO_RECT_SIZE,
+                          rect_pos_draw[1] + TETRONIMO_RECT_SIZE))
+            lines_line_2.append((rect_pos_draw[0] + TETRONIMO_RECT_SIZE,
+                          rect_pos_draw[1]))
+            if field == 0:
+                pygame.draw.line(screen, GREEN, lines_line_1[0], lines_line_1[1], width=1)
+                pygame.draw.line(screen, GREEN, lines_line_2[0], lines_line_2[1], width=1)
+            elif field == 1:
+                pygame.draw.line(screen, RED, lines_line_1[0], lines_line_1[1], width=1)
+                pygame.draw.line(screen, RED, lines_line_2[0], lines_line_2[1], width=1)
 
 class Difficulty(Enum):
     SUPER_EASY = 300
@@ -118,8 +153,9 @@ def main_game_loop():
     # Create screen handler
     print("Display values: {} by {} pixels".format(SCREEN_WIDTH, SCREEN_HEIGHT))
     # TODO: prepare proper OPENGL display context
-    flags = 0 # pygame.OPENGL # | pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE
+    # flags = 0 # pygame.OPENGL # | pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE
     # flags = pygame.FULLSCREEN | pygame.OPENGL | pygame.DOUBLEBUF | pygame.HWSURFACE
+    flags = pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags, vsync=1)
 
     # Main game loop
@@ -131,6 +167,8 @@ def main_game_loop():
 
     frame_counter = 0
 
+    DEBUG = True
+
     while GAME_RUNNING:
         # Frame counter
         frame_counter += 1
@@ -138,7 +176,8 @@ def main_game_loop():
 
         # Frame-by-frame logic
         valid_coords = check_valid_coords(test_tetromino)
-        movable = check_where_can_move(test_tetromino)
+        movable = check_where_can_move(playground, test_tetromino)
+        is_tetromino_almost_stuck = is_tetromino_going_to_be_stuck(playground, test_tetromino)
 
         # Event loop
         for event in pygame.event.get():
@@ -168,12 +207,18 @@ def main_game_loop():
             print("Difficulty is " + str(current_difficulty))
             if movable[1]:
                 move_rotate(test_tetromino, (0, 0), Direction.DOWN)
+            if is_tetromino_almost_stuck:
+                test_tetromino = stuck_tetromino_and_prepare_new(playground, test_tetromino)
 
             # TODO apply changing difficulty, right now set to HARD
 
         # Frame drawing
         # Erase the screen
         screen.fill(BLACK)
+
+        # Debug draws
+        if DEBUG:
+            draw_debug_playground(screen, playground)
 
         # Draw tetromino
         draw_tetromino(screen, test_tetromino)
@@ -189,6 +234,7 @@ def main_game_loop():
         frame_counter_label = debug_font.render("Frame counter: " + str(frame_counter), 1, WHITE)
         valid_coords_label = debug_font.render("Valid coords: " + str(valid_coords), 1, WHITE)
         movable_label = debug_font.render("Is movable: " + str(movable), 1, WHITE)
+        tetromino_almost_stuck = debug_font.render("Tetromino almost stuck: " + str(is_tetromino_almost_stuck), 1, WHITE)
         game_clock_label = debug_font.render("Game clock FPS: " + str(GAME_CLOCK.get_fps()), 1, WHITE)
         difficulty_label = debug_font.render("Difficulty: " + str(current_difficulty), 1, WHITE)
         screen.blit(frame_counter_label, (5, 5 + debug_strings_spacing * 0))
@@ -196,6 +242,7 @@ def main_game_loop():
         screen.blit(movable_label, (5, 5 + debug_strings_spacing * 2))
         screen.blit(game_clock_label, (5, 5 + debug_strings_spacing * 3))
         screen.blit(difficulty_label, (5, 5 + debug_strings_spacing * 4))
+        screen.blit(tetromino_almost_stuck, (5, 5 + debug_strings_spacing * 5))
 
         # Update the screen
         # TODO: lets try to run it with opengl
