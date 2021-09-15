@@ -52,6 +52,7 @@ def check_where_can_move(playground, tetromino):
     valid_x = TETRIS_PLAYGROUND_SIZE_X - 1
     valid_y = TETRIS_PLAYGROUND_SIZE_Y - 1
     movable = [True, True, True]
+    # Checking bounds
     for r in tetromino:
         if r[0] < 1:
             movable[0] = False
@@ -59,6 +60,17 @@ def check_where_can_move(playground, tetromino):
             movable[2] = False
         if r[1] > valid_y - 1:
             movable[1] = False
+
+    # Checking playground
+    for r in tetromino:
+        print("DEBUG! checking r in tetromino")
+        if r[1] < valid_y:
+            print("DEBUG! We are here, we will check")
+            print("DEBUG! r[0] and r[1]: {} {}".format(r[0], r[1]))
+            print("DEBUG! playground[r[0]][r[1] + 1]: {}".format(playground[r[0]][r[1] + 1]))
+            if playground[r[0]][r[1] + 1] == 1:
+                print("DEBUG! MADAFAKIN STUCK!")
+                movable[1] = False
     return movable
 
 def is_tetromino_going_to_be_stuck(playground, tetromino):
@@ -71,6 +83,7 @@ def is_tetromino_going_to_be_stuck(playground, tetromino):
     return False
 
 def stuck_tetromino_and_prepare_new(playground, tetromino):
+    # Stucking tetromino
     for rect in tetromino:
         playground[rect[1]][rect[0]] = 1
     tetromino = get_tetromino()
@@ -229,9 +242,10 @@ def main_game_loop():
 
         # Moving tetromino on it's own
         if frame_counter % current_difficulty.value == 0:
-            print("Moving tetromino down!")
             print("Difficulty is " + str(current_difficulty))
+            # FIXME here is a bug that moves tetromino because it is wrongly checkec if it can move
             if movable[1]:
+                print("Moving tetromino down!")
                 move_rotate(test_tetromino, (0, 0), Direction.DOWN)
             if is_tetromino_almost_stuck:
                 print("Stucking tetromino!")
