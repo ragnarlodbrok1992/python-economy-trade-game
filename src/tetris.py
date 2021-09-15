@@ -1,11 +1,12 @@
 import pygame
+import random
 
 from pygame import Rect
 
 from enum import Enum
 from consts import SCREEN_WIDTH, SCREEN_HEIGHT
 from colors import WHITE, RED, GREEN, BLUE, BLACK, YELLOW
-from tetromino import LINE, SQUARE, L_SHAPE, J_SHAPE, T_SHAPE, SKEW, ZKEW, move_rotate, Direction, Rotation
+from tetromino import get_tetromino, move_rotate, Direction, Rotation
 from tetris_const import TETRONIMO_RECT_SIZE, TETRIS_PLAYGROUND_SIZE_X, TETRIS_PLAYGROUND_SIZE_Y, TETRIS_PLAYGROUND_DRAW_START_POINT
 from ui import Button
 
@@ -65,19 +66,15 @@ def is_tetromino_going_to_be_stuck(playground, tetromino):
         rect_check = (rect[0], rect[1] + 1)
         if rect_check[1] > 20 - 1:
             return True
-        elif playground[rect_check[0]][rect_check[1]] == 1:
+        elif playground[rect_check[1]][rect_check[0]] == 1:
             return True
     return False
 
 def stuck_tetromino_and_prepare_new(playground, tetromino):
     for rect in tetromino:
-        print("DEBUG! rect_0: {}".format(rect[0]))
-        print("DEBUG! rect_0: {}".format(rect[1]))
-        playground[rect[0]][rect[1]] = 1
-        # FIXME Lots of bugs - variables from tetrominos are static
-        # FIXME Setting up playground into ones set's them in not a good order
-    return SQUARE  # test return, here we should get tetromino from tetrominos queue
-
+        playground[rect[1]][rect[0]] = 1
+    tetromino = get_tetromino()
+    return tetromino
 
 def draw_tetromino(screen, tetromino):
     for rect_pos in tetromino:
@@ -98,11 +95,34 @@ def draw_tetromino(screen, tetromino):
         pygame.draw.lines(screen, GREEN, True, lines, width=1)
 
 def draw_debug_playground(screen, playground):
+    for x in range(0, TETRIS_PLAYGROUND_SIZE_X):
+        for y in range(0, TETRIS_PLAYGROUND_SIZE_Y):
+            rect_pos_draw = (x * TETRONIMO_RECT_SIZE + SCREEN_WIDTH * TETRIS_PLAYGROUND_DRAW_START_POINT[0],
+                             y * TETRONIMO_RECT_SIZE + SCREEN_HEIGHT * TETRIS_PLAYGROUND_DRAW_START_POINT[1])
+            lines_line_1 = []
+            lines_line_2 = []
+            lines_line_1.append(rect_pos_draw)
+            lines_line_2.append((rect_pos_draw[0],
+                          rect_pos_draw[1] + TETRONIMO_RECT_SIZE))
+            lines_line_1.append((rect_pos_draw[0] + TETRONIMO_RECT_SIZE,
+                          rect_pos_draw[1] + TETRONIMO_RECT_SIZE))
+            lines_line_2.append((rect_pos_draw[0] + TETRONIMO_RECT_SIZE,
+                          rect_pos_draw[1]))
+
+            # For now, DEBUG
+            if playground[y][x] == 0:
+                pygame.draw.line(screen, GREEN, lines_line_1[0], lines_line_1[1], width=1)
+                pygame.draw.line(screen, GREEN, lines_line_2[0], lines_line_2[1], width=1)
+            elif playground[y][x] == 1:
+                pygame.draw.line(screen, RED, lines_line_1[0], lines_line_1[1], width=1)
+                pygame.draw.line(screen, RED, lines_line_2[0], lines_line_2[1], width=1)
+
+            '''
     # TODO fix this function
     for idy, row in enumerate(playground):
+        print("Debug! row: {}".format(row))
+        break
         for idx, field in enumerate(row):
-            # print("DEBUG!")
-            # print("Drawing idx {} idy {} - field {}".format(idx, idy, field))
             rect_pos_draw = (idx * TETRONIMO_RECT_SIZE + SCREEN_WIDTH * TETRIS_PLAYGROUND_DRAW_START_POINT[0],
                              idy * TETRONIMO_RECT_SIZE + SCREEN_HEIGHT * TETRIS_PLAYGROUND_DRAW_START_POINT[1])
             lines_line_1 = []
@@ -114,12 +134,14 @@ def draw_debug_playground(screen, playground):
                           rect_pos_draw[1] + TETRONIMO_RECT_SIZE))
             lines_line_2.append((rect_pos_draw[0] + TETRONIMO_RECT_SIZE,
                           rect_pos_draw[1]))
+            # print("Debug! field: {}".format(field))
             if field == 0:
                 pygame.draw.line(screen, GREEN, lines_line_1[0], lines_line_1[1], width=1)
                 pygame.draw.line(screen, GREEN, lines_line_2[0], lines_line_2[1], width=1)
             elif field == 1:
                 pygame.draw.line(screen, RED, lines_line_1[0], lines_line_1[1], width=1)
                 pygame.draw.line(screen, RED, lines_line_2[0], lines_line_2[1], width=1)
+            '''
 
 class Difficulty(Enum):
     SUPER_EASY = 300
@@ -135,7 +157,7 @@ def main_game_loop():
 
     # Init some variables
     # TODO make sure if rotation is correct (prepare right rotated tetrominos at start)
-    test_tetromino = LINE
+    test_tetromino = get_tetromino()
     tetris_playground_top_left = (TETRIS_PLAYGROUND_DRAW_START_POINT[0] * SCREEN_WIDTH,
                                   TETRIS_PLAYGROUND_DRAW_START_POINT[1] * SCREEN_HEIGHT)
     test_start_rect = Rect(tetris_playground_top_left[0], tetris_playground_top_left[1], TETRONIMO_RECT_SIZE, TETRONIMO_RECT_SIZE)
@@ -153,7 +175,10 @@ def main_game_loop():
     playground_borders = [top_left, bottom_left, bottom_right, top_right]
 
     # Playground backend - for storing rects from tetronimos
-    playground = [[0] * TETRIS_PLAYGROUND_SIZE_X]  * TETRIS_PLAYGROUND_SIZE_Y
+    playground = [[0 for x in range(0, TETRIS_PLAYGROUND_SIZE_X)] for x in range(0, TETRIS_PLAYGROUND_SIZE_Y)]
+
+    # DEBUG!
+    # playground[7][7] = 1  # This puts 1 in whole column...
 
     # Create screen handler
     print("Display values: {} by {} pixels".format(SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -191,16 +216,12 @@ def main_game_loop():
                     GAME_RUNNING = False
 
                 if event.key == K_w:
-                    print("Rotating")
                     move_rotate(test_tetromino, (0, 0), Direction.UP)
                 if event.key == K_s and movable[1]:
-                    print("Moving down")
                     move_rotate(test_tetromino, (0, 0), Direction.DOWN)
                 if event.key == K_a and movable[0]:
-                    print("Moving left")
                     move_rotate(test_tetromino, (0, 0), Direction.LEFT)
                 if event.key == K_d and movable[2]:
-                    print("Moving right")
                     move_rotate(test_tetromino, (0, 0), Direction.RIGHT)
 
                 elif event.type == QUIT:
